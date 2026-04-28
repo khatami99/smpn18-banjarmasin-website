@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "news": {
+      "title": "News Item",
+      "description": "Educational news and articles for the school",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Headline of the news" },
+        "content": { "type": "string", "description": "Full article content" },
+        "excerpt": { "type": "string", "description": "Short summary" },
+        "image": { "type": "string", "description": "Cover image URL" },
+        "date": { "type": "string", "format": "date-time" },
+        "category": { "type": "string", "enum": ["Akademik", "Kesiswaan", "Pengumuman"] },
+        "authorId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "category", "date", "image"]
+    },
+    "achievement": {
+      "title": "Achievement",
+      "description": "Student or school accomplishments",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "winner": { "type": "string" },
+        "rank": { "type": "string" },
+        "year": { "type": "string" },
+        "category": { "type": "string" },
+        "image": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "winner", "rank", "year"]
+    },
+    "extracurricular": {
+      "title": "Extracurricular",
+      "description": "School clubs and activities",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "schedule": { "type": "string" },
+        "mentor": { "type": "string" },
+        "image": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description"]
+    },
+    "staff": {
+      "title": "Staff/Teacher",
+      "description": "School personnel directory",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "subject": { "type": "string" },
+        "image": { "type": "string" },
+        "order": { "type": "integer" }
+      },
+      "required": ["name", "role"]
+    },
+    "settings": {
+      "title": "School Settings",
+      "description": "Global configuration and identity",
+      "type": "object",
+      "properties": {
+        "schoolName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "motto": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "vision": { "type": "string" },
+        "mission": { "type": "array", "items": { "type": "string" } },
+        "headmasterName": { "type": "string" },
+        "headmasterQuote": { "type": "string" },
+        "headmasterImage": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "news": { "schema": "news", "description": "Collection of school news" },
+    "achievements": { "schema": "achievement", "description": "Student competitions and awards" },
+    "extracurriculars": { "schema": "extracurricular", "description": "School club information" },
+    "staff": { "schema": "staff", "description": "Teachers and school staff" },
+    "settings/global": { "schema": "settings", "description": "Single document for school config" },
+    "admins": { "schema": { "type": "object", "properties": { "uid": { "type": "string" }, "email": { "type": "string" } } }, "description": "Whitelisted administrator UIDs" }
+  }
+}
