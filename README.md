@@ -1,6 +1,6 @@
 # 🏫 Website Resmi SMPN 18 Banjarmasin
 
-Website modern, responsif, dan dinamis untuk **SMPN 18 Banjarmasin** yang dibangun dengan teknologi web terkini. Dilengkapi dengan sistem manajemen konten (CMS) internal untuk memudahkan pengelolaan informasi sekolah.
+Website **SMPN 18 Banjarmasin** yang dilengkapi dengan sistem manajemen konten (CMS) internal untuk memudahkan pengelolaan informasi sekolah.
 
 ---
 
@@ -82,4 +82,4 @@ Aplikasi ini dibangun untuk kepentingan **SMPN 18 Banjarmasin**. Silakan gunakan
 
 ---
 
-**Dibuat dengan ❤️ oleh [Sauqi Khatami](mailto:sauqikhatami084@gmail.com)**
+**Dibuat oleh [Muhammad Sauqi Khatami](mailto:sauqikhatami084@gmail.com)**
