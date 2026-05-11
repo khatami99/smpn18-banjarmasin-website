@@ -10,9 +10,11 @@ import {
   deleteDoc,
   updateDoc,
   limit,
-  Timestamp
+  Timestamp,
+  serverTimestamp
 } from 'firebase/firestore';
-import { db, auth } from '../lib/firebase';
+import { db, auth, storage } from '../lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export interface NewsItem {
   id?: string;
@@ -65,6 +67,17 @@ export interface GalleryItem {
   createdAt?: any;
 }
 
+export interface SchoolProgram {
+  id?: string;
+  name: string;
+  startYear: string;
+  description: string;
+  image?: string;
+  documents?: { title: string; url: string }[];
+  createdAt?: any;
+  updatedAt?: any;
+}
+
 export interface SchoolSettings {
   schoolName: string;
   tagline: string;
@@ -84,21 +97,17 @@ export interface SchoolSettings {
 }
 
 export const handleFirestoreError = (error: any, operation: string, path: string | null = null) => {
-  if (error.code === 'permission-denied') {
+  if (error?.code === 'permission-denied') {
     const errorInfo = {
       error: error.message,
+      code: error.code,
       operationType: operation,
       path: path,
       authInfo: {
         userId: auth.currentUser?.uid || 'anonymous',
         email: auth.currentUser?.email || 'none',
         emailVerified: auth.currentUser?.emailVerified || false,
-        isAnonymous: auth.currentUser?.isAnonymous || true,
-        providerInfo: auth.currentUser?.providerData.map(p => ({
-          providerId: p.providerId,
-          displayName: p.displayName || '',
-          email: p.email || ''
-        })) || []
+        isAnonymous: auth.currentUser ? auth.currentUser.isAnonymous : true,
       }
     };
     console.error('Firestore Permission Error:', JSON.stringify(errorInfo, null, 2));
@@ -107,7 +116,21 @@ export const handleFirestoreError = (error: any, operation: string, path: string
   throw error;
 };
 
-// --- DATA SERVICES ---
+export const handleStorageError = (error: any, path: string) => {
+  const errorInfo = {
+    error: error.message,
+    code: error.code,
+    path: path,
+    authInfo: {
+      userId: auth.currentUser?.uid || 'anonymous',
+      email: auth.currentUser?.email || 'none',
+    }
+  };
+  console.error('Storage Error:', JSON.stringify(errorInfo, null, 2));
+  throw new Error(`Upload failed (${error.code}): ${error.message}`);
+};
+
+// ... DATA SERVICES ---
 
 export const getNews = (callback: (news: NewsItem[]) => void) => {
   const q = query(collection(db, 'news'), orderBy('createdAt', 'desc'), limit(50));
@@ -149,6 +172,72 @@ export const getGallery = (callback: (items: GalleryItem[]) => void) => {
   }, (err) => handleFirestoreError(err, 'list', 'gallery'));
 };
 
+export const getPrograms = (callback: (items: SchoolProgram[]) => void) => {
+  const q = query(collection(db, 'programs'), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snapshot) => {
+    const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SchoolProgram));
+    callback(items);
+  }, (err) => handleFirestoreError(err, 'list', 'programs'));
+};
+
+export const getProgramById = async (id: string): Promise<SchoolProgram | null> => {
+  try {
+    const docRef = doc(db, 'programs', id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as SchoolProgram;
+    }
+    return null;
+  } catch (err) {
+    handleFirestoreError(err, 'get', `programs/${id}`);
+    return null;
+  }
+};
+
+export const addProgram = async (data: Omit<SchoolProgram, 'id' | 'createdAt' | 'updatedAt'>) => {
+  try {
+    const docRef = await addDoc(collection(db, 'programs'), {
+      ...data,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (err) {
+    handleFirestoreError(err, 'create', 'programs');
+  }
+};
+
+export const updateProgram = async (id: string, data: Partial<SchoolProgram>) => {
+  try {
+    const docRef = doc(db, 'programs', id);
+    await updateDoc(docRef, {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+  } catch (err) {
+    handleFirestoreError(err, 'update', `programs/${id}`);
+  }
+};
+
+export const deleteProgram = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'programs', id));
+  } catch (err) {
+    handleFirestoreError(err, 'delete', `programs/${id}`);
+  }
+};
+
+export const uploadFile = async (file: File, path: string): Promise<string> => {
+  try {
+    const fileRef = ref(storage, `${path}/${Date.now()}_${file.name}`);
+    const snapshot = await uploadBytes(fileRef, file);
+    return getDownloadURL(snapshot.ref);
+  } catch (err) {
+    handleStorageError(err, path);
+    throw err;
+  }
+};
+
 export const getSchoolSettings = async (): Promise<SchoolSettings | null> => {
   try {
     const docRef = doc(db, 'settings', 'global');
@@ -160,5 +249,21 @@ export const getSchoolSettings = async (): Promise<SchoolSettings | null> => {
   } catch (err) {
     handleFirestoreError(err, 'get', 'settings/global');
     return null;
+  }
+};
+
+export const deleteNews = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'news', id));
+  } catch (err) {
+    handleFirestoreError(err, 'delete', `news/${id}`);
+  }
+};
+
+export const deleteAchievement = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'achievements', id));
+  } catch (err) {
+    handleFirestoreError(err, 'delete', `achievements/${id}`);
   }
 };

@@ -1,10 +1,96 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ULTIMATE EMERGENCY OPEN SESAME
-    // Allowing anyone to read and write for the next 2 months for setup.
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 7, 1);
+    
+    // --- HELPERS ---
+    
+    function isSignedIn() {
+      return request.auth != null;
     }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == "sauqikhatami084@gmail.com" && request.auth.token.email_verified == true) ||
+        (request.auth.token.email == "admin18@smpn18.internal")
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- VALIDATION BLUEPRINTS ---
+
+    function isValidProgram(data) {
+      return data.keys().hasAll(['name', 'startYear', 'description', 'createdAt', 'updatedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.startYear is string && data.startYear.matches('^[0-9]{4}$')
+        && data.description is string && data.description.size() <= 20000
+        && (data.get('image', '') is string && data.get('image', '').size() <= 2000000)
+        && (data.get('documents', []) is list && data.get('documents', []).size() <= 50)
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidNews(data) {
+      return data.keys().hasAll(['title', 'excerpt', 'content', 'category', 'image', 'date', 'updatedAt'])
+        && data.title is string && data.title.size() <= 500
+        && data.excerpt is string && data.excerpt.size() <= 1000
+        && data.content is string && data.content.size() <= 50000
+        && data.category is string
+        && (data.image is string && data.image.size() <= 2000000)
+        && data.updatedAt == request.time;
+    }
+
+    // --- RULES ---
+
+    // Global Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Admins Collection
+    match /admins/{uid} {
+      allow read: if isSignedIn();
+      allow write: if false; // Managed via Firebase Console
+    }
+
+    // Programs Collection
+    match /programs/{programId} {
+      allow read: if true;
+      allow create: if isAdmin() 
+        && isValidId(programId)
+        && isValidProgram(incoming());
+      allow update: if isAdmin()
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          // Action: Edit
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'startYear', 'description', 'image', 'documents', 'updatedAt'])
+        );
+      allow delete: if isAdmin();
+    }
+
+    match /news/{newsId} { 
+      allow read: if true; 
+      allow create: if isAdmin() && isValidNews(incoming());
+      allow update: if isAdmin() && isValidNews(incoming());
+      allow delete: if isAdmin();
+    }
+    match /achievements/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /staff/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /extracurriculars/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /gallery/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /settings/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /system/{id} { allow read, write: if true; } // For simple auth flow
   }
 }

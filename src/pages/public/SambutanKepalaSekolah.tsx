@@ -34,7 +34,7 @@ export default function SambutanKepalaSekolah() {
           <div className="inline-block p-4 bg-slate-50 dark:bg-slate-800 rounded-[3rem] border border-slate-100 dark:border-slate-700 mb-8 transition-colors">
              <div className="h-48 w-48 bg-slate-200 dark:bg-slate-700 rounded-[2.5rem] overflow-hidden">
                 <img 
-                  src={settings?.headmasterImage || "https://api.dicebear.com/7.x/avataaars/svg?seed=principal"} 
+                  src={settings?.headmasterImage || "https://images.unsplash.com/photo-1544717305-27a734ef1904?q=80&w=600&h=800&auto=format&fit=crop"} 
                   alt="Kepala Sekolah" 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"

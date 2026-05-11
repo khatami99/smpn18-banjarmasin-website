@@ -26,9 +26,70 @@
   background-color: #0f172a;
   color: #f8fafc;
 }
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
+/* Custom News Editor Styles */
+.quill-container .ql-toolbar {
+  @apply rounded-t-[2rem] border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4;
+}
 
+.quill-container .ql-container {
+  @apply rounded-b-[2rem] border-slate-100 dark:border-slate-700 font-sans text-base min-h-[300px];
+}
 
+.quill-container .ql-editor {
+  @apply p-8 leading-relaxed text-slate-700 dark:text-slate-300;
+}
 
+.quill-container .ql-editor.ql-blank::before {
+  @apply text-slate-400 dark:text-slate-600 italic font-medium left-8;
+}
 
+.quill-container .ql-snow .ql-stroke {
+  @apply dark:stroke-slate-400;
+}
+
+.quill-container .ql-snow .ql-fill {
+  @apply dark:fill-slate-400;
+}
+
+.quill-container .ql-snow .ql-picker {
+  @apply dark:text-slate-400;
+}
+
+.quill-container .ql-snow.ql-toolbar button:hover .ql-stroke,
+.quill-container .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+  @apply dark:stroke-school-yellow;
+}
+
+/* News Content Rendering Fixes */
+.news-content-render img {
+  @apply rounded-3xl shadow-xl my-8 mx-auto block;
+}
+
+.news-content-render h1, .news-content-render h2, .news-content-render h3 {
+  @apply font-black text-school-navy dark:text-white mt-8 mb-4 tracking-tighter;
+}
+
+.news-content-render ul, .news-content-render ol {
+  @apply ml-6 my-4 space-y-2 list-outside;
+}
+
+.news-content-render ul {
+  @apply list-disc;
+}
+
+.news-content-render ol {
+  @apply list-decimal;
+}
+
+.news-content-render p {
+  @apply mb-4;
+}
 

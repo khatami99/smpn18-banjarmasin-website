@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Save, School, Tag, MapPin, Award, Hash, Star, Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, Target, Zap, Trash2, Users, Phone, Mail, GraduationCap } from 'lucide-react';
+import { Save, School, Tag, Award, Hash, Star, Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, Users, Phone, Mail, GraduationCap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { db, auth } from '../../lib/firebase';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { updatePassword, updateEmail } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<'general' | 'auth'>('general');
@@ -26,13 +25,14 @@ export default function Settings() {
   });
 
   const [authData, setAuthData] = useState({
-    email: auth.currentUser?.email || '',
+    username: '',
+    currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
 
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -44,6 +44,15 @@ export default function Settings() {
         if (docSnap.exists()) {
           setSettings(prev => ({ ...prev, ...docSnap.data() }));
         }
+
+        // Ambil ID/Username saat ini dari Database
+        const authSnap = await getDoc(doc(db, 'system', 'auth'));
+        if (authSnap.exists()) {
+          setAuthData(prev => ({ ...prev, username: authSnap.data().username || 'admin18' }));
+        } else {
+          setAuthData(prev => ({ ...prev, username: 'admin18' }));
+        }
+
       } catch (err) {
         console.error("Error fetching settings:", err);
       } finally {
@@ -67,38 +76,43 @@ export default function Settings() {
   };
 
   const handleUpdateAuth = async () => {
+    // Validasi
     if (authData.newPassword && authData.newPassword !== authData.confirmPassword) {
-      setMessage({ type: 'error', text: 'Konfirmasi password tidak cocok.' });
+      setMessage({ type: 'error', text: 'Konfirmasi password baru tidak cocok.' });
+      return;
+    }
+
+    if (!authData.currentPassword) {
+      setMessage({ type: 'error', text: 'Masukkan Password Saat Ini untuk keamanan.' });
       return;
     }
 
     setSaving(true);
     setMessage(null);
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("User not found");
+      // 1. Cek password saat ini di database
+      const authSnap = await getDoc(doc(db, 'system', 'auth'));
+      const currentStored = authSnap.exists() ? authSnap.data() : { username: 'admin18', password: 'alamanda18' };
 
-      // Update Email/ID if changed
-      if (authData.email !== user.email) {
-        await updateEmail(user, authData.email);
-        // Also update the admins collection to match new email
-        await updateDoc(doc(db, 'admins', user.uid), { email: authData.email });
+      if (authData.currentPassword !== currentStored.password) {
+        throw new Error("Password saat ini salah.");
       }
 
-      // Update Password if provided
-      if (authData.newPassword) {
-        await updatePassword(user, authData.newPassword);
-      }
+      // 2. Update Kredensial Baru
+      const newCredentials = {
+        username: authData.username || currentStored.username,
+        password: authData.newPassword || currentStored.password,
+        updatedAt: new Date().toISOString(),
+        updatedBy: auth.currentUser?.email || 'admin'
+      };
 
-      setMessage({ type: 'success', text: 'Kredensial login berhasil diperbarui!' });
-      setAuthData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
+      await setDoc(doc(db, 'system', 'auth'), newCredentials);
+
+      setMessage({ type: 'success', text: 'ID & Password berhasil diperbarui! Gunakan kredensial baru ini untuk login berikutnya.' });
+      setAuthData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/requires-recent-login') {
-        setMessage({ type: 'error', text: 'Sesi anda telah berakhir. Silakan logout dan login kembali untuk mengubah keamanan.' });
-      } else {
-        setMessage({ type: 'error', text: 'Gagal memperbarui keamanan: ' + err.message });
-      }
+      setMessage({ type: 'error', text: 'Gagal memperbarui keamanan: ' + err.message });
     } finally {
       setSaving(false);
     }
@@ -106,30 +120,30 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="p-8 flex items-center justify-center h-64 text-slate-400">
+      <div className="p-8 flex items-center justify-center h-64 text-slate-400 dark:text-slate-600">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto pb-24">
+    <div className="p-8 max-w-5xl mx-auto pb-24 font-sans transition-colors duration-500">
       <header className="mb-12">
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Pusat Konfigurasi</h1>
-        <p className="text-slate-500 font-medium tracking-tight">Kelola identitas digital dan keamanan sistem sekolah Anda.</p>
+        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Pusat Konfigurasi</h1>
+        <p className="text-slate-500 dark:text-slate-400 font-medium tracking-tight">Kelola identitas digital dan keamanan sistem sekolah Anda.</p>
       </header>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-8">
+      <div className="flex flex-wrap gap-4 mb-8">
         <button 
           onClick={() => setActiveTab('general')}
-          className={`px-8 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === 'general' ? 'bg-school-navy text-white shadow-xl shadow-school-navy/20' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'}`}
+          className={`px-8 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === 'general' ? 'bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10' : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
         >
           Identitas Sekolah
         </button>
         <button 
           onClick={() => setActiveTab('auth')}
-          className={`px-8 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === 'auth' ? 'bg-school-navy text-white shadow-xl shadow-school-navy/20' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'}`}
+          className={`px-8 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === 'auth' ? 'bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10' : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
         >
           Keamanan & Login
         </button>
@@ -139,7 +153,7 @@ export default function Settings() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`p-6 rounded-[2rem] flex items-center gap-4 mb-8 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-red-50 border-red-100 text-red-800'}`}
+          className={`p-6 rounded-[2rem] flex items-center gap-4 mb-8 border ${message.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20 text-red-800 dark:text-red-400'}`}
         >
           {message.type === 'success' ? <CheckCircle2 className="h-6 w-6" /> : <AlertCircle className="h-6 w-6" />}
           <p className="font-bold text-sm tracking-tight">{message.text}</p>
@@ -147,7 +161,7 @@ export default function Settings() {
       )}
 
       {activeTab === 'general' ? (
-        <div className="bg-white rounded-[3rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="p-10 md:p-12 space-y-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <InputField 
@@ -182,220 +196,106 @@ export default function Settings() {
                   onChange={(e) => setSettings({...settings, npsn: e.target.value})}
                 />
               </div>
-
-              <div className="pt-6 border-t border-slate-50">
-                 <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-3">
-                   <span className="h-6 w-1 bg-emerald-500 rounded-full"></span>
-                   Statistik Sekolah
-                 </h3>
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                   <InputField 
-                    label="Jumlah Siswa" 
-                    icon={<Users className="h-4 w-4" />}
-                    value={settings.studentCount}
-                    onChange={(e) => setSettings({...settings, studentCount: e.target.value})}
-                   />
-                   <InputField 
-                    label="Jumlah Guru/Staff" 
-                    icon={<GraduationCap className="h-4 w-4" />}
-                    value={settings.teacherCount}
-                    onChange={(e) => setSettings({...settings, teacherCount: e.target.value})}
-                   />
-                   <InputField 
-                    label="Jumlah Rombel" 
-                    icon={<Hash className="h-4 w-4" />}
-                    value={settings.classCount}
-                    onChange={(e) => setSettings({...settings, classCount: e.target.value})}
-                   />
-                 </div>
-              </div>
-            </div>
-
-              <InputField 
-                label="Alamat Lengkap Sekolah" 
-                icon={<MapPin className="h-4 w-4" />}
-                value={settings.address}
-                onChange={(e) => setSettings({...settings, address: e.target.value})}
-                isTextArea
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <InputField 
-                  label="Nomor Telepon / WhatsApp" 
-                  icon={<Phone className="h-4 w-4" />}
-                  value={settings.phone}
-                  onChange={(e) => setSettings({...settings, phone: e.target.value})}
-                />
-                <InputField 
-                  label="Email Sekolah" 
-                  icon={<Mail className="h-4 w-4" />}
-                  value={settings.email}
-                  onChange={(e) => setSettings({...settings, email: e.target.value})}
-                />
-              </div>
-
-            <div className="pt-6 border-t border-slate-50">
-               <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-3">
-                 <span className="h-6 w-1 bg-school-yellow rounded-full"></span>
-                 Visi & Misi Sekolah
-               </h3>
-               <div className="space-y-8">
-                  <InputField 
-                    label="Visi Sekolah" 
-                    icon={<Target className="h-4 w-4" />}
-                    value={settings.vision}
-                    onChange={(e) => setSettings({...settings, vision: e.target.value})}
-                    isTextArea
-                  />
-                  
-                  <div className="space-y-4">
-                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-school-red"><Zap className="h-4 w-4" /></span>
-                        Misi Sekolah (Editor Daftar)
-                      </div>
-                      <button 
-                        onClick={() => setSettings({...settings, mission: [...settings.mission, '']})}
-                        className="text-[10px] bg-slate-100 px-3 py-1 rounded-lg text-slate-600 hover:bg-school-red hover:text-white transition-all shadow-sm"
-                      >
-                         Tambah Poin
-                      </button>
-                    </label>
-                    <div className="grid gap-3">
-                      {settings.mission.map((m, idx) => (
-                        <div key={idx} className="flex gap-2">
-                          <input 
-                            value={m}
-                            onChange={(e) => {
-                              const newMission = [...settings.mission];
-                              newMission[idx] = e.target.value;
-                              setSettings({...settings, mission: newMission});
-                            }}
-                            placeholder={`Misi ke-${idx + 1}`}
-                            className="flex-1 px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-school-navy outline-none transition-all font-bold text-slate-700 shadow-inner"
-                          />
-                          <button 
-                            onClick={() => {
-                              const newMission = settings.mission.filter((_, i) => i !== idx);
-                              setSettings({...settings, mission: newMission});
-                            }}
-                            className="p-4 bg-red-50 text-red-400 hover:bg-red-500 hover:text-white rounded-2xl transition-all shadow-sm"
-                          >
-                             <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-               </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-50">
-               <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-3">
-                 <span className="h-6 w-1 bg-school-red rounded-full"></span>
-                 Profil Kepala Sekolah
-               </h3>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <InputField 
-                    label="Nama Kepala Sekolah" 
-                    icon={<Users className="h-4 w-4" />}
-                    value={settings.headmasterName}
-                    onChange={(e) => setSettings({...settings, headmasterName: e.target.value})}
-                  />
-                  <InputField 
-                    label="Kutipan Sambutan (Singkat)" 
-                    icon={<Star className="h-4 w-4" />}
-                    value={settings.headmasterQuote}
-                    onChange={(e) => setSettings({...settings, headmasterQuote: e.target.value})}
-                    isTextArea
-                  />
-               </div>
             </div>
           </div>
 
-          <div className="p-10 md:p-12 bg-slate-50/50 flex justify-end">
+          <div className="p-10 md:p-12 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end border-t border-slate-100 dark:border-slate-800">
             <button 
               onClick={handleSaveGeneral}
               disabled={saving}
-              className="flex items-center gap-3 bg-school-navy text-white px-10 py-4 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-school-navy/20 disabled:opacity-50"
+              className="flex items-center gap-3 bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy px-10 py-4 rounded-2xl font-bold hover:bg-slate-800 dark:hover:bg-yellow-400 transition-all shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10 disabled:opacity-50"
             >
               {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
-              Perbarui Informasi Sekolah
+              Simpan Identitas Sekolah
             </button>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[3rem] shadow-sm border border-slate-100 overflow-hidden max-w-2xl">
+        <div className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
            <div className="p-10 md:p-12 space-y-8">
-              <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl mb-8">
-                <p className="text-[10px] font-black uppercase text-amber-700 tracking-widest mb-2 flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4" /> Perhatian Keamanan
+              <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 p-6 rounded-2xl mb-8">
+                <p className="text-[10px] font-black uppercase text-amber-700 dark:text-amber-500 tracking-widest mb-2 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" /> Perhatian Internal
                 </p>
-                <p className="text-xs font-bold text-amber-900 leading-relaxed">
-                  Mengubah kredensial login akan memaksa Anda keluar dari sistem jika ID (Email) diubah. Pastikan Anda mencatat password baru Anda dengan aman.
+                <p className="text-xs font-bold text-amber-900 dark:text-amber-200 leading-relaxed">
+                  Semua admin menggunakan ID & Password yang sama. Disarankan untuk merahasiakan kredensial ini dan hanya membagikannya kepada staf yang berwenang.
                 </p>
               </div>
 
               <InputField 
-                label="Email / ID Admin" 
+                label="ID Administrator (Username)" 
                 icon={<Hash className="h-4 w-4" />}
-                value={authData.email}
-                onChange={(e) => setAuthData({...authData, email: e.target.value})}
+                value={authData.username}
+                onChange={(e) => setAuthData({...authData, username: e.target.value})}
+                placeholder="Contoh: admin18"
               />
 
-              <div className="space-y-4 pt-4 border-t border-slate-50">
+              <div className="pt-4 border-t border-slate-50 dark:border-slate-800">
+                <InputField 
+                  label="Password Saat Ini (Wajib)" 
+                  icon={<Lock className="h-4 w-4" />}
+                  value={authData.currentPassword}
+                  onChange={(e) => setAuthData({...authData, currentPassword: e.target.value})}
+                  type="password"
+                  placeholder="Masukkan password sekarang untuk konfirmasi"
+                />
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-50 dark:border-slate-800">
                 <div className="relative group">
                   <InputField 
-                    label="Password Baru" 
+                    label="Password Baru (Biarkan kosong jika tidak ganti)" 
                     icon={<Lock className="h-4 w-4" />}
                     value={authData.newPassword}
                     onChange={(e) => setAuthData({...authData, newPassword: e.target.value})}
                     type={showPassword ? "text" : "password"}
+                    placeholder="Masukkan password baru"
                   />
                   <button
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 bottom-3 text-slate-400"
+                    className="absolute right-4 bottom-3 text-slate-400 hover:text-school-navy dark:hover:text-school-yellow transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+
                 <InputField 
                   label="Konfirmasi Password Baru" 
                   icon={<Lock className="h-4 w-4" />}
                   value={authData.confirmPassword}
                   onChange={(e) => setAuthData({...authData, confirmPassword: e.target.value})}
                   type={showPassword ? "text" : "password"}
+                  placeholder="Ulangi password baru"
                 />
               </div>
-           </div>
 
-           <div className="p-10 md:p-12 bg-slate-50/50 flex justify-end">
-            <button 
-              onClick={handleUpdateAuth}
-              disabled={saving}
-              className="flex items-center gap-3 bg-school-red text-white px-10 py-4 rounded-2xl font-bold hover:bg-rose-700 transition-all shadow-xl shadow-school-red/20 disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-5 w-5" />}
-              Simpan Perubahan Keamanan
-            </button>
-          </div>
+              <button 
+                onClick={handleUpdateAuth}
+                disabled={saving || !authData.currentPassword}
+                className="w-full py-5 bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy rounded-2xl font-bold hover:bg-slate-800 dark:hover:bg-yellow-400 transition-all shadow-xl shadow-school-navy/10 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+              >
+                {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+                Simpan Perubahan Keamanan
+              </button>
+           </div>
         </div>
       )}
     </div>
   );
 }
 
-function InputField({ label, icon, value, onChange, isTextArea = false, type = "text" }: { 
+function InputField({ label, icon, value, onChange, isTextArea = false, type = "text", placeholder = "" }: { 
   label: string, 
   icon: React.ReactNode, 
   value: string, 
   onChange: (e: React.ChangeEvent<any>) => void,
   isTextArea?: boolean,
-  type?: string
+  type?: string,
+  placeholder?: string
 }) {
   return (
     <div className="space-y-3">
-      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+      <label className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
         <span className="text-school-red">{icon}</span>
         {label}
       </label>
@@ -404,14 +304,16 @@ function InputField({ label, icon, value, onChange, isTextArea = false, type = "
           value={value}
           onChange={onChange}
           rows={4}
-          className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-school-navy/5 focus:bg-white focus:border-school-navy outline-none transition-all resize-none font-bold text-slate-700 shadow-inner"
+          placeholder={placeholder}
+          className="w-full px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 focus:ring-4 focus:ring-school-navy/5 dark:focus:ring-school-yellow/5 focus:bg-white dark:focus:bg-slate-900 focus:border-school-navy dark:focus:border-school-yellow outline-none transition-all resize-none font-bold text-slate-700 dark:text-slate-200 shadow-inner"
         />
       ) : (
         <input 
           type={type}
           value={value}
           onChange={onChange}
-          className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-school-navy/5 focus:bg-white focus:border-school-navy outline-none transition-all font-bold text-slate-700 shadow-inner"
+          placeholder={placeholder}
+          className="w-full px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 focus:ring-4 focus:ring-school-navy/5 dark:focus:ring-school-yellow/5 focus:bg-white dark:focus:bg-slate-900 focus:border-school-navy dark:focus:border-school-yellow outline-none transition-all font-bold text-slate-700 dark:text-slate-200 shadow-inner"
         />
       )}
     </div>

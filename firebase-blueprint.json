@@ -77,6 +77,40 @@
         "headmasterQuote": { "type": "string" },
         "headmasterImage": { "type": "string" }
       }
+    },
+    "system_auth": {
+      "title": "System Authentication",
+      "description": "Internal credentials for simple login",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "password": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "program": {
+      "title": "School Program",
+      "description": "Special programs or initiatives of the school",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "startYear": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "url": { "type": "string" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "startYear", "description"]
     }
   },
   "firestore": {
@@ -84,7 +118,9 @@
     "achievements": { "schema": "achievement", "description": "Student competitions and awards" },
     "extracurriculars": { "schema": "extracurricular", "description": "School club information" },
     "staff": { "schema": "staff", "description": "Teachers and school staff" },
+    "programs": { "schema": "program", "description": "School programs and special initiatives" },
     "settings/global": { "schema": "settings", "description": "Single document for school config" },
+    "system/auth": { "schema": "system_auth", "description": "Document holding the shared ID/PW" },
     "admins": { "schema": { "type": "object", "properties": { "uid": { "type": "string" }, "email": { "type": "string" } } }, "description": "Whitelisted administrator UIDs" }
   }
 }

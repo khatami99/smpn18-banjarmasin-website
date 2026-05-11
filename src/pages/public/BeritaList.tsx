@@ -3,12 +3,15 @@ import { motion } from 'motion/react';
 import { ArrowLeft, Calendar, User, Search, Filter, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getNews, NewsItem } from '../../services/schoolService';
+import Pagination from '../../components/admin/Pagination';
 
 export default function BeritaList() {
   const [berita, setBerita] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('Semua');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     const unsub = getNews(setBerita);
@@ -21,6 +24,13 @@ export default function BeritaList() {
     const matchesCategory = categoryFilter === 'Semua' || item.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
+
+  const paginatedBerita = filteredBerita.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, categoryFilter]);
 
   return (
     <div className="font-sans">
@@ -60,39 +70,52 @@ export default function BeritaList() {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredBerita.map((item, i) => (
+            {paginatedBerita.map((item, i) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
                   key={item.id} 
-                  className="group cursor-pointer"
                 >
-                  <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-[2rem] overflow-hidden mb-6 border border-slate-200 dark:border-slate-700 relative shadow-sm group-hover:shadow-xl transition-all">
-                    <img 
-                      src={item.image || `https://picsum.photos/seed/${item.id}/800/600`} 
-                      alt="News" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                      referrerPolicy="no-referrer" 
-                    />
-                    <div className="absolute top-4 left-4">
-                        <span className="bg-school-navy dark:bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-school-yellow shadow-lg">
-                          {item.category}
-                        </span>
+                  <Link to={`/berita/${item.id}`} className="group block">
+                    <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-[2rem] overflow-hidden mb-6 border border-slate-200 dark:border-slate-700 relative shadow-sm group-hover:shadow-xl transition-all">
+                      <img 
+                        src={item.image || 'https://images.unsplash.com/photo-1546410531-bb4caa1b424d?q=80&w=2071&auto=format&fit=crop'} 
+                        alt="News" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                        referrerPolicy="no-referrer" 
+                      />
+                      <div className="absolute top-4 left-4">
+                          <span className="bg-school-navy dark:bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-school-yellow shadow-lg">
+                            {item.category}
+                          </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-school-slate dark:text-slate-400 uppercase tracking-widest mb-4">
-                    <Calendar className="h-3 w-3" />
-                    <span>{item.date}</span>
-                  </div>
-                  <h3 className="text-xl font-bold leading-tight text-school-navy dark:text-white group-hover:text-school-red transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="mt-4 text-sm text-school-navy/60 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                    {item.excerpt}
-                  </p>
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-school-slate dark:text-slate-400 uppercase tracking-widest mb-4">
+                      <Calendar className="h-3 w-3" />
+                      <span>{item.date}</span>
+                    </div>
+                    <h3 className="text-xl font-bold leading-tight text-school-navy dark:text-white group-hover:text-school-red transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="mt-4 text-sm text-school-navy/60 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      {item.excerpt}
+                    </p>
+                  </Link>
                 </motion.div>
             ))}
+          </div>
+        )}
+
+        {!loading && filteredBerita.length > itemsPerPage && (
+          <div className="mt-12">
+            <Pagination 
+              currentPage={currentPage}
+              totalItems={filteredBerita.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              colorScheme="navy"
+            />
           </div>
         )}
 

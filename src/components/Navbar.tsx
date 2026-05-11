@@ -10,11 +10,13 @@ import {
   Home,
   Newspaper,
   Trophy,
+  Users,
   Palette,
   Phone,
   Info,
   Target,
-  Download
+  Download,
+  Image as ImageIcon
 } from 'lucide-react';
 import { SchoolLogo } from './SchoolLogo';
 import { useTheme } from '../lib/theme';
@@ -32,6 +34,7 @@ export function Navbar() {
 
   const navLinks = [
     { label: 'Berita', href: '/berita', icon: <Newspaper className="h-4 w-4" />, isHash: false },
+    { label: 'Galeri', href: '/galeri', icon: <ImageIcon className="h-4 w-4" />, isHash: false },
     { label: 'Ekstrakurikuler', href: '/ekstrakurikuler', icon: <Palette className="h-4 w-4" />, isHash: false },
     { label: 'Prestasi', href: '/prestasi', icon: <Trophy className="h-4 w-4" />, isHash: false },
     { label: 'Unduhan', href: '/unduhan', icon: <Download className="h-4 w-4" />, isHash: false },
@@ -73,7 +76,9 @@ export function Navbar() {
                 >
                   {[
                     { label: 'Sambutan Kepala Sekolah', href: '/profil/sambutan' },
-                    { label: 'Visi & Misi', href: '/profil/visi-misi' }
+                    { label: 'Visi & Misi', href: '/profil/visi-misi' },
+                    { label: 'Program Sekolah', href: '/program' },
+                    { label: 'Direktori Staff', href: '/staf' }
                   ].map((link, idx) => (
                     <Link 
                       key={idx} 
@@ -193,6 +198,20 @@ export function Navbar() {
                 >
                   <Target className={`h-5 w-5 ${location.pathname === '/profil/visi-misi' ? 'text-school-yellow' : 'text-slate-400'}`} />
                   VISI & MISI
+                </Link>
+                <Link 
+                  to="/program" 
+                  className={`flex items-center gap-4 p-4 rounded-2xl font-black transition-all ${location.pathname === '/program' ? 'bg-school-navy text-white shadow-lg' : 'text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+                >
+                  <Palette className={`h-5 w-5 ${location.pathname === '/program' ? 'text-school-yellow' : 'text-slate-400'}`} />
+                  PROGRAM SEKOLAH
+                </Link>
+                <Link 
+                  to="/staf" 
+                  className={`flex items-center gap-4 p-4 rounded-2xl font-black transition-all ${location.pathname === '/staf' ? 'bg-school-navy text-white shadow-lg' : 'text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+                >
+                  <Users className={`h-5 w-5 ${location.pathname === '/staf' ? 'text-school-yellow' : 'text-slate-400'}`} />
+                  DIREKTORI STAFF
                 </Link>
 
                 <div className="py-2 px-2">

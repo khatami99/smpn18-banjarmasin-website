@@ -49,7 +49,9 @@ export default function KontakPage() {
                 {contactItems.map((item, i) => (
                   <div key={i} className="p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 hover:border-school-red dark:hover:border-school-yellow transition-all group bg-slate-50 dark:bg-slate-900">
                     <div className={`h-12 w-12 ${item.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                      {React.cloneElement(item.icon as React.ReactElement, { className: "h-6 w-6" })}
+                       <div className="h-6 w-6">
+                         {item.icon}
+                       </div>
                     </div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-school-slate dark:text-slate-500 mb-2">{item.label}</p>
                     <p className="font-bold text-school-navy dark:text-white break-words">{item.value}</p>
@@ -76,7 +78,7 @@ export default function KontakPage() {
                         <div className="absolute inset-0 bg-school-navy/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                            <span className="bg-white text-school-navy px-8 py-3 rounded-full font-bold text-xs uppercase tracking-widest">Buka di Google Maps</span>
                         </div>
-                        <img src="https://picsum.photos/seed/map/800/800" alt="Map" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" referrerPolicy="no-referrer" />
+                        <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1200&auto=format&fit=crop" alt="Map" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" referrerPolicy="no-referrer" />
                     </div>
                  </div>
               </div>

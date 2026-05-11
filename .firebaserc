@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "ai-studio-applet-webapp-585ed"
+  },
+  "targets": {
+    "ai-studio-applet-webapp-585ed": {
+      "hosting": {
+        "main": [
+          "smpn18banjarmasin"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Download, FileText, Calendar, Music, BookOpen, Search, Filter } from 'lucide-react';
+import Pagination from '../components/admin/Pagination';
 
 interface DownloadItem {
   id: string;
@@ -24,12 +25,21 @@ const downloadData: DownloadItem[] = [
 export default function Unduhan() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<'Semua' | 'Akademik' | 'Administrasi' | 'Lainnya'>('Semua');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   const filteredItems = downloadData.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = activeCategory === 'Semua' || item.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const paginatedItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, activeCategory]);
 
   return (
     <div className="min-h-screen pt-24 pb-20 bg-slate-50 dark:bg-slate-950">
@@ -88,52 +98,65 @@ export default function Unduhan() {
         </div>
       </section>
 
-      {/* Grid Content */}
       <section className="px-6">
         <div className="max-w-7xl mx-auto">
           {filteredItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  viewport={{ once: true }}
-                  className="group bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2.5rem] hover:shadow-2xl hover:shadow-school-navy/10 dark:hover:shadow-none transition-all duration-500"
-                >
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="h-14 w-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center group-hover:bg-school-yellow/10 transition-colors duration-500">
-                      {item.category === 'Akademik' && <BookOpen className="h-7 w-7 text-school-navy dark:text-slate-300 group-hover:text-school-yellow" />}
-                      {item.category === 'Administrasi' && <FileText className="h-7 w-7 text-school-navy dark:text-slate-300 group-hover:text-school-yellow" />}
-                      {item.category === 'Lainnya' && <Calendar className="h-7 w-7 text-school-navy dark:text-slate-300 group-hover:text-school-yellow" />}
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedItems.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    viewport={{ once: true }}
+                    className="group bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2.5rem] hover:shadow-2xl hover:shadow-school-navy/10 dark:hover:shadow-none transition-all duration-500"
+                  >
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="h-14 w-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center group-hover:bg-school-yellow/10 transition-colors duration-500">
+                        {item.category === 'Akademik' && <BookOpen className="h-7 w-7 text-school-navy dark:text-slate-300 group-hover:text-school-yellow" />}
+                        {item.category === 'Administrasi' && <FileText className="h-7 w-7 text-school-navy dark:text-slate-300 group-hover:text-school-yellow" />}
+                        {item.category === 'Lainnya' && <Calendar className="h-7 w-7 text-school-navy dark:text-slate-300 group-hover:text-school-yellow" />}
+                      </div>
+                      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full">
+                        {item.type}
+                      </span>
                     </div>
-                    <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full">
-                      {item.type}
-                    </span>
-                  </div>
 
-                  <h3 className="text-lg font-black text-school-navy dark:text-white mb-2 leading-tight group-hover:text-school-yellow transition-colors duration-300">
-                    {item.title}
-                  </h3>
-                  
-                  <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400 text-xs font-bold mb-6">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {item.date}
+                    <h3 className="text-lg font-black text-school-navy dark:text-white mb-2 leading-tight group-hover:text-school-yellow transition-colors duration-300">
+                      {item.title}
+                    </h3>
+                    
+                    <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400 text-xs font-bold mb-6">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {item.date}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="h-3.5 w-3.5" />
+                        {item.size}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <FileText className="h-3.5 w-3.5" />
-                      {item.size}
-                    </div>
-                  </div>
 
-                  <button className="w-full py-4 bg-slate-50 dark:bg-slate-800 text-school-navy dark:text-slate-300 font-black text-xs uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 group-hover:bg-school-navy group-hover:text-white transition-all shadow-sm">
-                    <Download className="h-4 w-4" />
-                    Unduh Sekarang
-                  </button>
-                </motion.div>
-              ))}
+                    <button className="w-full py-4 bg-slate-50 dark:bg-slate-800 text-school-navy dark:text-slate-300 font-black text-xs uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 group-hover:bg-school-navy group-hover:text-white transition-all shadow-sm">
+                      <Download className="h-4 w-4" />
+                      Unduh Sekarang
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
+
+              {filteredItems.length > itemsPerPage && (
+                <div className="mt-12">
+                  <Pagination 
+                    currentPage={currentPage}
+                    totalItems={filteredItems.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                    colorScheme="navy"
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800">

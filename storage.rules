@@ -1,0 +1,47 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && (
+        // Whitelist email asli abang
+        request.auth.token.email == "sauqikhatami084@gmail.com" ||
+        // Akun internal sekolah
+        request.auth.token.email == "admin18@smpn18.internal" ||
+        // Atau punya data di collections admins
+        firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Public can read everything
+    match /{allPaths=**} {
+      allow read: if true;
+    }
+
+    // Only admins can write/delete
+    match /programs/{allPaths=**} {
+      allow write, delete: if isAdmin();
+    }
+    
+    match /news/{allPaths=**} {
+      allow write, delete: if isAdmin();
+    }
+
+    match /gallery/{allPaths=**} {
+      allow write, delete: if isAdmin();
+    }
+    
+    match /staff/{allPaths=**} {
+      allow write, delete: if isAdmin();
+    }
+
+    match /achievements/{allPaths=**} {
+      allow write, delete: if isAdmin();
+    }
+
+    match /extracurriculars/{allPaths=**} {
+      allow write, delete: if isAdmin();
+    }
+  }
+}

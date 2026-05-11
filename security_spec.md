@@ -1,25 +1,28 @@
-# Security Specification - SMPN 18 Banjarmasin
+# Security Spec - Library Program Sekolah
 
 ## Data Invariants
-1. News articles must have a valid title, category, and content.
-2. Achievements must belong to a specific year and rank.
-3. Only Whitelisted UIDs in the `admins` collection can perform write operations.
-4. Timestamps (`createdAt`, `updatedAt`) must be strictly enforced on the server.
-5. All IDs must be strictly validated for size and character set.
+1. Program must have a unique ID.
+2. Program `startYear` must be a valid 4-digit numeric string.
+3. Program `description` must not exceed 10,000 characters.
+4. `documents` items must have a `title` and a valid `url`.
+5. Only administrators (defined in `/admins/{uid}`) can write to the `programs` collection.
+6. Public can read all programs.
 
-## The "Dirty Dozen" Payloads (Denial Expected)
-1. **Unauthenticated Write**: Attempting to create news without logging in.
-2. **Identity Spoofing**: Logged in user trying to set `authorId` to someone else's UID.
-3. **Ghost Field Update**: Adding `isAdmin: true` to a news document.
-4. **Terminal State Bypass**: Attempting to edit a news article's `createdAt` date.
-5. **PII Leak**: Unauthorized reading of the `admins` collection.
-6. **Resource Poisoning**: Injecting 2MB of text into the `title` field.
-7. **ID Injection**: Using `../../../system/config` as a document ID.
-8. **Invalid Schema**: Creating an achievement without a `year` field.
-9. **Atomic Desync**: Updating an achievement without setting `updatedAt`.
-10. **Admin Self-Promotion**: A user creating their own entry in the `admins` collection.
-11. **Email Spoofing**: Trying to gain access using an unverified email address.
-12. **Mass Query Scraping**: Attempting to list all admin emails without filtering.
+## The Dirty Dozen (Attack Vectors)
+1. **Unauthorized Create**: Non-admin trying to add a program.
+2. **Identity Spoofing**: Admin trying to set a `createdAt` timestamp from the future (client-side).
+3. **Data Poisoning**: Injecting 1MB string into `name`.
+4. **Invalid Reference**: Creating a program without a description.
+5. **Delete Sweep**: Non-admin trying to delete all programs.
+6. **Schema Break**: Adding a field `isAdmin: true` to a program.
+7. **Type Poisoning**: Setting `startYear` as a number instead of a string.
+8. **Resource Exhaustion**: Adding 10,000 document references to a single program.
+9. **Update Gap**: Changing `createdAt` during an update.
+10. **ID Poisoning**: Using a 2KB long string as a document ID.
+11. **PII Leak**: (Not applicable as programs are public, but checking for hidden fields).
+12. **Recursive Cost**: Rule with nested `get()` in a list query.
 
-## Test Strategy
-The security rules will be tested to ensure all write operations require admin privileges and schema validation. Read operations will be public except for sensitive administrative data.
+## Implementation Detail
+- Use `isValidProgram()` helper.
+- Enforce `affectedKeys().hasOnly()` for updates.
+- Use `request.auth.uid` check against `/admins/` collection.
