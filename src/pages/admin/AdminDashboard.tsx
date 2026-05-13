@@ -12,7 +12,7 @@ import {
   SchoolProgram,
   deleteNews
 } from '../../services/schoolService';
-import { Newspaper, Trophy, Users, Edit2, Trash2, Star, Target } from 'lucide-react';
+import { Newspaper, Trophy, Users, Edit2, Trash2, Star, Target, MessageSquare } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../components/admin/Pagination';
@@ -247,6 +247,19 @@ export default function AdminDashboard() {
                   </Link>
                 ))
               )}
+
+              {/* Sambutan Quick Link */}
+              <div className="pt-2">
+                <Link to="/admin/greeting" className="flex gap-4 items-center p-5 rounded-[2rem] bg-indigo-50/50 dark:bg-indigo-500/10 hover:bg-white dark:hover:bg-slate-850 hover:shadow-xl hover:shadow-indigo-500/5 transition-all border border-indigo-50/30 dark:border-indigo-500/10 group">
+                  <div className="h-12 w-12 bg-indigo-500/10 dark:bg-slate-700 shadow-sm text-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-500 group-hover:text-white group-hover:rotate-12 transition-all">
+                    <MessageSquare className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-black text-slate-800 dark:text-slate-200 text-sm truncate uppercase tracking-tight">Sambutan Kepsek</p>
+                    <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 tracking-widest uppercase">Kelola Pesan</p>
+                  </div>
+                </Link>
+              </div>
             </div>
             {achievements.length > itemsPerPage.achievements && (
               <div className="mt-8 relative z-10">

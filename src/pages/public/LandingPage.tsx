@@ -237,6 +237,8 @@ export default function LandingPage() {
     };
   }, []);
 
+  const headmasterStaff = liveStaff.find(s => s.role === 'Kepala Sekolah');
+
   const school = liveSettings || {
     schoolName: "SMP Negeri 18 Banjarmasin",
     tagline: "Mewujudkan Generasi Alamanda",
@@ -249,11 +251,15 @@ export default function LandingPage() {
     phone: "(0511) 3254397"
   };
 
+  const headmasterName = headmasterStaff?.name || school.headmasterName || 'Kepala Sekolah';
+  const headmasterImage = headmasterStaff?.image || school.headmasterImage || 'https://images.unsplash.com/photo-1544717305-27a734ef1904?q=80&w=600&h=800&auto=format&fit=crop';
+  const headmasterQuote = school.headmasterQuote || 'Selamat datang di digital portal resmi SMPN 18 Banjarmasin, wadah informasi untuk seluruh warga sekolah.';
+
   const name = (school as any).schoolName || (school as any).name;
 
   const stats = [
     { label: 'Siswa Aktif', value: (school as any).studentCount || '768', icon: <Users className="h-5 w-5" /> },
-    { label: 'Guru & Staff', value: liveStaff.length > 0 ? liveStaff.length.toString() : ((school as any).teacherCount || '0'), icon: <GraduationCap className="h-5 w-5" /> },
+    { label: 'Guru & Staff', value: liveStaff.length > 0 ? liveStaff.length.toString() : ((school as any).teacherCount || '54'), icon: <GraduationCap className="h-5 w-5" /> },
     { label: 'Rombel', value: (school as any).classCount || '24', icon: <ImageIcon className="h-5 w-5" /> },
     { label: 'Akreditasi', value: (school as any).accreditation || 'A', icon: <Calendar className="h-5 w-5" /> },
   ];
@@ -350,15 +356,15 @@ export default function LandingPage() {
               >
                  <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-yellow underline-offset-8 decoration-4">Sambutan Hangat</span>
                  <h3 className="text-4xl md:text-5xl font-black text-school-navy dark:text-white mb-8 tracking-tight">Kepala Sekolah <br /> SMPN 18 Banjarmasin</h3>
-                 <div className="relative mb-10">
+                  <div className="relative mb-10">
                     <p className="text-2xl md:text-3xl font-black text-school-slate dark:text-slate-400 italic leading-tight">
-                      "{school.headmasterQuote || 'Selamat datang di digital portal resmi SMPN 18 Banjarmasin, wadah informasi untuk seluruh warga sekolah.'}"
+                      "{headmasterQuote}"
                     </p>
                     <div className="absolute -top-6 -left-6 text-school-yellow/20 -z-10">
                        <Quote className="h-20 w-20" />
                     </div>
                  </div>
-                 <p className="font-black text-lg text-school-navy dark:text-white mb-1">{school.headmasterName || 'Master Admin'}</p>
+                 <p className="font-black text-lg text-school-navy dark:text-white mb-1">{headmasterName}</p>
                  <p className="text-[10px] font-black text-school-red uppercase tracking-widest mb-10">Kepala Sekolah</p>
                  <Link to="/profil/sambutan" className="inline-flex items-center gap-2 bg-school-navy dark:bg-school-yellow dark:text-school-navy text-white px-8 py-4 rounded-2xl font-bold hover:bg-slate-800 transition-all text-sm group shadow-xl shadow-school-navy/20">
                     Baca Sambutan Lengkap
@@ -373,7 +379,7 @@ export default function LandingPage() {
                 className="w-full max-w-md lg:max-w-lg aspect-[5/6] bg-slate-100 dark:bg-slate-800 rounded-[4rem] overflow-hidden transition-all duration-700 shadow-2xl relative group"
               >
                  <img 
-                   src={school.headmasterImage || 'https://images.unsplash.com/photo-1544717305-27a734ef1904?q=80&w=600&h=800&auto=format&fit=crop'} 
+                   src={headmasterImage} 
                    alt="Kepala Sekolah" 
                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                    referrerPolicy="no-referrer"
@@ -663,6 +669,63 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* SECTION KONTAK */}
+      <section id="kontak" className="py-32 px-6 bg-white dark:bg-slate-950 transition-colors duration-300">
+        <div className="mx-auto max-w-7xl">
+           <div className="grid lg:grid-cols-2 gap-24 items-center">
+              <motion.div 
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="text-left"
+              >
+                 <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-yellow underline-offset-8 decoration-4">Hubungi Kami</span>
+                 <h3 className="text-4xl md:text-5xl font-black text-school-navy dark:text-white mb-8 tracking-tight">Informasi Layanan <br/> & Korespondensi</h3>
+                 <p className="text-school-slate dark:text-slate-400 mb-12 text-lg leading-relaxed max-w-lg">
+                   Punya pertanyaan? Tim kami siap melayani kebutuhan informasi wali murid, siswa, maupun masyarakat umum.
+                 </p>
+                 
+                 <div className="space-y-10">
+                    <div className="flex gap-6 items-start">
+                       <div className="h-14 w-14 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-school-red flex-shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
+                          <MapPin className="h-6 w-6" />
+                       </div>
+                       <div>
+                          <p className="font-bold uppercase text-[10px] tracking-[0.3em] text-school-slate dark:text-slate-500 mb-2">Lokasi Fisik</p>
+                          <p className="font-bold text-school-navy dark:text-white text-lg leading-relaxed">Jl. Kelayan Besar 1 RT.3 Kel.Tanjung Pagar</p>
+                       </div>
+                    </div>
+                    <div className="flex gap-6 items-start">
+                       <div className="h-14 w-14 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-school-red flex-shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
+                          <Phone className="h-6 w-6" />
+                       </div>
+                       <div>
+                          <p className="font-bold uppercase text-[10px] tracking-[0.3em] text-school-slate dark:text-slate-500 mb-2">Saluran Digital</p>
+                          <p className="font-bold text-school-navy dark:text-white text-lg leading-relaxed">{school.email || 'info@smpn18bjm.sch.id'} <br/> {school.phone || '(0511) 3254397'}</p>
+                       </div>
+                    </div>
+                 </div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="h-[500px] bg-slate-100 dark:bg-slate-800 rounded-[4rem] overflow-hidden relative shadow-2xl shadow-black/5 group border-8 border-slate-200 dark:border-slate-800"
+              >
+                 <iframe 
+                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.082729904265!2d114.59560411082531!3d-3.32997239663473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2de4214534a78945%3A0xc4a6829705a69176!2sSMP%20Negeri%2018%20Banjarmasin!5e0!3m2!1sid!2sid!4v1714328324324!5m2!1sid!2sid" 
+                   className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
+                   allowFullScreen={true} 
+                   loading="lazy" 
+                   referrerPolicy="no-referrer-when-downgrade"
+                 ></iframe>
+              </motion.div>
+           </div>
+        </div>
+      </section>
+
       {/* SECTION GALERI */}
       {liveGallery.length > 0 && (
         <section className="py-32 px-6 bg-slate-50 dark:bg-slate-900 overflow-hidden border-y border-slate-300 dark:border-slate-800 transition-colors duration-300">
@@ -807,63 +870,6 @@ export default function LandingPage() {
           </div>
         </section>
       )}
-
-      {/* SECTION KONTAK */}
-      <section id="kontak" className="py-32 px-6 bg-white dark:bg-slate-950 transition-colors duration-300">
-        <div className="mx-auto max-w-7xl">
-           <div className="grid lg:grid-cols-2 gap-24 items-center">
-              <motion.div 
-                initial={{ opacity: 0, x: -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="text-left"
-              >
-                 <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-yellow underline-offset-8 decoration-4">Hubungi Kami</span>
-                 <h3 className="text-4xl md:text-5xl font-black text-school-navy dark:text-white mb-8 tracking-tight">Informasi Layanan <br/> & Korespondensi</h3>
-                 <p className="text-school-slate dark:text-slate-400 mb-12 text-lg leading-relaxed max-w-lg">
-                   Punya pertanyaan? Tim kami siap melayani kebutuhan informasi wali murid, siswa, maupun masyarakat umum.
-                 </p>
-                 
-                 <div className="space-y-10">
-                    <div className="flex gap-6 items-start">
-                       <div className="h-14 w-14 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-school-red flex-shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
-                          <MapPin className="h-6 w-6" />
-                       </div>
-                       <div>
-                          <p className="font-bold uppercase text-[10px] tracking-[0.3em] text-school-slate dark:text-slate-500 mb-2">Lokasi Fisik</p>
-                          <p className="font-bold text-school-navy dark:text-white text-lg leading-relaxed">Jl. Kelayan Besar 1 RT.3 Kel.Tanjung Pagar</p>
-                       </div>
-                    </div>
-                    <div className="flex gap-6 items-start">
-                       <div className="h-14 w-14 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-school-red flex-shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
-                          <Phone className="h-6 w-6" />
-                       </div>
-                       <div>
-                          <p className="font-bold uppercase text-[10px] tracking-[0.3em] text-school-slate dark:text-slate-500 mb-2">Saluran Digital</p>
-                          <p className="font-bold text-school-navy dark:text-white text-lg leading-relaxed">{school.email || 'info@smpn18bjm.sch.id'} <br/> {school.phone || '(0511) 3254397'}</p>
-                       </div>
-                    </div>
-                 </div>
-              </motion.div>
-              <motion.div 
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="h-[500px] bg-slate-100 dark:bg-slate-800 rounded-[4rem] overflow-hidden relative shadow-2xl shadow-black/5 group border-8 border-slate-200 dark:border-slate-800"
-              >
-                 <iframe 
-                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.082729904265!2d114.59560411082531!3d-3.32997239663473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2de4214534a78945%3A0xc4a6829705a69176!2sSMP%20Negeri%2018%20Banjarmasin!5e0!3m2!1sid!2sid!4v1714328324324!5m2!1sid!2sid" 
-                   className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
-                   allowFullScreen={true} 
-                   loading="lazy" 
-                   referrerPolicy="no-referrer-when-downgrade"
-                 ></iframe>
-              </motion.div>
-           </div>
-        </div>
-      </section>
 
       {/* FLOAT WA BUTTON */}
       <a 

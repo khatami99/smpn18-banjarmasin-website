@@ -233,6 +233,7 @@ export default function StaffManagement() {
                            onChange={e => setFormData({...formData, role: e.target.value})}
                            className="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl px-5 font-bold text-slate-900 dark:text-slate-200 outline-none focus:ring-4 focus:ring-school-navy/5 focus:border-school-navy transition-all shadow-inner appearance-none relative"
                          >
+                           <option value="Kepala Sekolah">Kepala Sekolah</option>
                            <option value="Guru">Guru</option>
                            <option value="Tata Usaha">Tata Usaha</option>
                            <option value="Tenaga Kebersihan">Tenaga Kebersihan</option>

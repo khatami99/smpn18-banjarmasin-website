@@ -11,6 +11,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import NewsManagement from './pages/admin/NewsManagement';
 import AchievementsManagement from './pages/admin/AchievementsManagement';
 import StaffManagement from './pages/admin/StaffManagement';
+import HeadmasterGreetingManagement from './pages/admin/HeadmasterGreeting';
 import ExtracurricularManagement from './pages/admin/ExtracurricularManagement';
 import ProgramManagement from './pages/admin/ProgramManagement';
 import LoginPage from './pages/public/LoginPage';
@@ -27,7 +28,7 @@ import ProgramList from './pages/public/ProgramList';
 import ProgramDetail from './pages/public/ProgramDetail';
 import Unduhan from './pages/Unduhan';
 import { SchoolLogo } from './components/SchoolLogo';
-import { LayoutDashboard, Settings as SettingsIcon, LogOut, Home, Menu, X, Loader2, Newspaper, Trophy, Users, Palette, Image as ImageIcon, Sun, Moon, Target, Smile } from 'lucide-react';
+import { LayoutDashboard, Settings as SettingsIcon, LogOut, Home, Menu, X, Loader2, Newspaper, Trophy, Users, Palette, Image as ImageIcon, Sun, Moon, Target, Smile, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { auth, db } from './lib/firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth'; // Added onAuthStateChanged for better type safety in layout
@@ -142,6 +143,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
     { icon: <Target className="h-5 w-5" />, label: 'Program Sekolah', path: '/admin/programs' },
     { icon: <Palette className="h-5 w-5" />, label: 'Ekstrakurikuler', path: '/admin/extracurricular' },
     { icon: <ImageIcon className="h-5 w-5" />, label: 'Galeri Sekolah', path: '/admin/gallery' },
+    { icon: <MessageSquare className="h-5 w-5" />, label: 'Sambutan Kepsek', path: '/admin/greeting' },
     { icon: <Users className="h-5 w-5" />, label: 'Guru & Staff', path: '/admin/staff' },
     { icon: <SettingsIcon className="h-5 w-5" />, label: 'Pengaturan Sekolah', path: '/admin/settings' },
   ];
@@ -256,6 +258,7 @@ function AppContent() {
               <Routes>
                 <Route path="/dashboard" element={<AdminDashboard />} />
                 <Route path="/news" element={<NewsManagement />} />
+                <Route path="/greeting" element={<HeadmasterGreetingManagement />} />
                 <Route path="/programs" element={<ProgramManagement />} />
                 <Route path="/achievements" element={<AchievementsManagement />} />
                 <Route path="/extracurricular" element={<ExtracurricularManagement />} />

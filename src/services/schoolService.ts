@@ -86,6 +86,7 @@ export interface SchoolSettings {
   mission: string[];
   headmasterName: string;
   headmasterQuote: string;
+  headmasterGreeting?: string;
   headmasterImage: string;
   address?: string;
   phone?: string;
