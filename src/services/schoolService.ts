@@ -91,6 +91,8 @@ export interface SchoolSettings {
   address?: string;
   phone?: string;
   email?: string;
+  mapsUrl?: string;
+  instagram?: string;
   studentCount?: string;
   teacherCount?: string;
   classCount?: string;

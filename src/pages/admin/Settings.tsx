@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Save, School, Tag, Award, Hash, Star, Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, Users, Phone, Mail, GraduationCap } from 'lucide-react';
+import { Save, School, Tag, Award, Hash, Star, Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, Users, Phone, Mail, GraduationCap, Target, MapPin, Map, Instagram } from 'lucide-react';
 import { motion } from 'motion/react';
 import { db, auth } from '../../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState<'general' | 'auth'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'vision' | 'contact' | 'auth'>('general');
   const [settings, setSettings] = useState({
     schoolName: "SMP Negeri 18 Banjarmasin",
     tagline: "Mewujudkan Generasi Alamanda",
     address: "Jl. Pemuda No. 18, Banjarmasin",
     phone: "",
     email: "",
+    mapsUrl: "",
+    instagram: "",
     accreditation: "A",
     npsn: "12345678",
     motto: "Amanah, Mandiri, Adaptif",
@@ -23,6 +25,7 @@ export default function Settings() {
     vision: "",
     mission: [] as string[]
   });
+  const [newMissionPoint, setNewMissionPoint] = useState('');
 
   const [authData, setAuthData] = useState({
     username: '',
@@ -35,6 +38,15 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  const getMapsUrl = (input: string) => {
+    if (!input) return "";
+    if (input.includes("<iframe")) {
+      const match = input.match(/src="([^"]+)"/);
+      return match ? match[1] : input;
+    }
+    return input;
+  };
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -142,6 +154,18 @@ export default function Settings() {
           Identitas Sekolah
         </button>
         <button 
+          onClick={() => setActiveTab('vision')}
+          className={`px-8 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === 'vision' ? 'bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10' : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+        >
+          Visi & Misi
+        </button>
+        <button 
+          onClick={() => setActiveTab('contact')}
+          className={`px-8 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === 'contact' ? 'bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10' : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+        >
+          Kontak & Lokasi
+        </button>
+        <button 
           onClick={() => setActiveTab('auth')}
           className={`px-8 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === 'auth' ? 'bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10' : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
         >
@@ -160,10 +184,10 @@ export default function Settings() {
         </motion.div>
       )}
 
-      {activeTab === 'general' ? (
+      {activeTab === 'general' && (
         <div className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="p-10 md:p-12 space-y-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-8">
               <InputField 
                 label="Nama Sekolah Resmi" 
                 icon={<School className="h-4 w-4" />}
@@ -182,7 +206,10 @@ export default function Settings() {
                 value={settings.motto}
                 onChange={(e) => setSettings({...settings, motto: e.target.value})}
               />
-              <div className="grid grid-cols-2 gap-4">
+              
+              <div className="pt-4 border-t border-slate-50 dark:border-slate-800" />
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <InputField 
                   label="Akreditasi" 
                   icon={<Award className="h-4 w-4" />}
@@ -194,6 +221,18 @@ export default function Settings() {
                   icon={<Hash className="h-4 w-4" />}
                   value={settings.npsn}
                   onChange={(e) => setSettings({...settings, npsn: e.target.value})}
+                />
+                <InputField 
+                  label="Siswa Aktif" 
+                  icon={<Users className="h-4 w-4" />}
+                  value={settings.studentCount}
+                  onChange={(e) => setSettings({...settings, studentCount: e.target.value})}
+                />
+                <InputField 
+                  label="Rombel" 
+                  icon={<Target className="h-4 w-4" />}
+                  value={settings.classCount}
+                  onChange={(e) => setSettings({...settings, classCount: e.target.value})}
                 />
               </div>
             </div>
@@ -210,7 +249,176 @@ export default function Settings() {
             </button>
           </div>
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'vision' && (
+        <div className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="p-10 md:p-12 space-y-10">
+            <div className="space-y-8">
+              <InputField 
+                label="Visi Sekolah" 
+                icon={<Target className="h-4 w-4" />}
+                isTextArea
+                value={settings.vision}
+                onChange={(e) => setSettings({...settings, vision: e.target.value})}
+                placeholder="Contoh: Terwujudnya insan yang berakhlak mulia, cerdas..."
+              />
+
+              <div className="space-y-6">
+                <label className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                  <span className="text-school-red"><CheckCircle2 className="h-4 w-4" /></span>
+                  Misi Sekolah (Poin-poin)
+                </label>
+                
+                <div className="space-y-4">
+                  {settings.mission.map((point, index) => (
+                    <div key={index} className="flex gap-4 group">
+                      <div className="flex-1 bg-slate-50 dark:bg-slate-800 rounded-2xl px-6 py-4 border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm">
+                        {point}
+                      </div>
+                      <button 
+                        onClick={() => {
+                          const newMission = [...settings.mission];
+                          newMission.splice(index, 1);
+                          setSettings({...settings, mission: newMission});
+                        }}
+                        className="h-14 w-14 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                      >
+                        <AlertCircle className="h-5 w-5 rotate-45" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <input 
+                    type="text"
+                    value={newMissionPoint}
+                    onChange={(e) => setNewMissionPoint(e.target.value)}
+                    placeholder="Tambah poin misi baru..."
+                    className="flex-1 px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 focus:ring-4 focus:ring-school-navy/5 dark:focus:ring-school-yellow/5 focus:bg-white dark:focus:bg-slate-900 focus:border-school-navy dark:focus:border-school-yellow outline-none transition-all font-bold text-slate-700 dark:text-slate-200 shadow-inner"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        if (newMissionPoint.trim()) {
+                          setSettings({
+                            ...settings, 
+                            mission: [...settings.mission, newMissionPoint.trim()]
+                          });
+                          setNewMissionPoint('');
+                        }
+                      }
+                    }}
+                  />
+                  <button 
+                    onClick={() => {
+                      if (newMissionPoint.trim()) {
+                        setSettings({
+                          ...settings, 
+                          mission: [...settings.mission, newMissionPoint.trim()]
+                        });
+                        setNewMissionPoint('');
+                      }
+                    }}
+                    className="px-8 bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy rounded-2xl font-bold hover:shadow-lg transition-all"
+                  >
+                    Tambah
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-10 md:p-12 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end border-t border-slate-100 dark:border-slate-800">
+            <button 
+              onClick={handleSaveGeneral}
+              disabled={saving}
+              className="flex items-center gap-3 bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy px-10 py-4 rounded-2xl font-bold hover:bg-slate-800 dark:hover:bg-yellow-400 transition-all shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+              Simpan Visi & Misi
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'contact' && (
+        <div className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="p-10 md:p-12 space-y-10">
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <InputField 
+                  label="Alamat Fisik Sekolah" 
+                  icon={<MapPin className="h-4 w-4" />}
+                  value={settings.address}
+                  onChange={(e) => setSettings({...settings, address: e.target.value})}
+                  placeholder="Jl. Kelayan Besar 1 RT.3 Kel.Tanjung Pagar"
+                />
+                <InputField 
+                  label="URL Embed Google Maps" 
+                  icon={<Map className="h-4 w-4" />}
+                  value={settings.mapsUrl}
+                  onChange={(e) => setSettings({...settings, mapsUrl: e.target.value})}
+                  placeholder="https://www.google.com/maps/embed?..."
+                />
+              </div>
+
+              {settings.mapsUrl && (
+                <div className="mt-4">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Preview Map:</p>
+                  <div className="h-64 w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                    <iframe 
+                      src={getMapsUrl(settings.mapsUrl)}
+                      className="w-full h-full border-0"
+                      allowFullScreen={true}
+                      loading="lazy"
+                    ></iframe>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <InputField 
+                  label="Email Resmi Sekolah" 
+                  icon={<Mail className="h-4 w-4" />}
+                  value={settings.email}
+                  onChange={(e) => setSettings({...settings, email: e.target.value})}
+                  placeholder="info@smpn18bjm.sch.id"
+                />
+                <InputField 
+                  label="Nomor Telepon Sekolah" 
+                  icon={<Phone className="h-4 w-4" />}
+                  value={settings.phone}
+                  onChange={(e) => setSettings({...settings, phone: e.target.value})}
+                  placeholder="(0511) 3254397"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <InputField 
+                  label="Username Instagram Sekolah" 
+                  icon={<Instagram className="h-4 w-4" />}
+                  value={settings.instagram}
+                  onChange={(e) => setSettings({...settings, instagram: e.target.value})}
+                  placeholder="@smpn18bjm"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-10 md:p-12 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end border-t border-slate-100 dark:border-slate-800">
+            <button 
+              onClick={handleSaveGeneral}
+              disabled={saving}
+              className="flex items-center gap-3 bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy px-10 py-4 rounded-2xl font-bold hover:bg-slate-800 dark:hover:bg-yellow-400 transition-all shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+              Simpan Informasi Kontak
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'auth' && (
         <div className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
            <div className="p-10 md:p-12 space-y-8">
               <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 p-6 rounded-2xl mb-8">

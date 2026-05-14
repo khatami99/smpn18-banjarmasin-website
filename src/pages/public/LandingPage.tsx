@@ -243,26 +243,41 @@ export default function LandingPage() {
     schoolName: "SMP Negeri 18 Banjarmasin",
     tagline: "Mewujudkan Generasi Alamanda",
     motto: "Amanah, Mandiri, Adaptif",
-    address: "Jl. Pemuda No. 18, Banjarmasin",
+    address: "Jl. Kelayan Besar 1 RT.3 Kel.Tanjung Pagar",
     headmasterName: "Kepala Sekolah",
     headmasterQuote: "",
     headmasterImage: "",
     email: "info@smpn18bjm.sch.id",
-    phone: "(0511) 3254397"
+    phone: "(0511) 3254397",
+    mapsUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3521.4433467359313!2d114.59798697437695!3d-3.3459399413449336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2de4214137890267%3A0x6f8f97091ca5e78b!2sSMPN%2018%20Banjarmasin!5e1!3m2!1sid!2sid!4v1778731317053!5m2!1sid!2sid",
+    studentCount: "768",
+    teacherCount: "54",
+    classCount: "24",
+    accreditation: "A"
   };
 
   const headmasterName = headmasterStaff?.name || school.headmasterName || 'Kepala Sekolah';
   const headmasterImage = headmasterStaff?.image || school.headmasterImage || 'https://images.unsplash.com/photo-1544717305-27a734ef1904?q=80&w=600&h=800&auto=format&fit=crop';
   const headmasterQuote = school.headmasterQuote || 'Selamat datang di digital portal resmi SMPN 18 Banjarmasin, wadah informasi untuk seluruh warga sekolah.';
 
-  const name = (school as any).schoolName || (school as any).name;
+  const name = school.schoolName || (school as any).name;
 
   const stats = [
-    { label: 'Siswa Aktif', value: (school as any).studentCount || '768', icon: <Users className="h-5 w-5" /> },
-    { label: 'Guru & Staff', value: liveStaff.length > 0 ? liveStaff.length.toString() : ((school as any).teacherCount || '54'), icon: <GraduationCap className="h-5 w-5" /> },
-    { label: 'Rombel', value: (school as any).classCount || '24', icon: <ImageIcon className="h-5 w-5" /> },
-    { label: 'Akreditasi', value: (school as any).accreditation || 'A', icon: <Calendar className="h-5 w-5" /> },
+    { label: 'Siswa Aktif', value: school.studentCount || '768', icon: <Users className="h-5 w-5" /> },
+    { label: 'Guru & Staff', value: liveStaff.length > 0 ? liveStaff.length.toString() : (school.teacherCount || '54'), icon: <GraduationCap className="h-5 w-5" /> },
+    { label: 'Rombel', value: school.classCount || '24', icon: <ImageIcon className="h-5 w-5" /> },
+    { label: 'Akreditasi', value: school.accreditation || 'A', icon: <Calendar className="h-5 w-5" /> },
   ];
+
+  const getMapsUrl = (input: string) => {
+    if (!input) return "";
+    // If user pasted the whole iframe tag
+    if (input.includes("<iframe")) {
+      const match = input.match(/src="([^"]+)"/);
+      return match ? match[1] : input;
+    }
+    return input;
+  };
 
   return (
     <div className="scroll-smooth">
@@ -397,7 +412,7 @@ export default function LandingPage() {
             <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8 text-left">
               <div>
                 <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-yellow underline-offset-8 decoration-4 inline-block">Inovasi Sekolah</span>
-                <h3 className="text-4xl md:text-5xl font-black text-school-navy dark:text-white tracking-tight">Program Unggulan</h3>
+                <h3 className="text-4xl md:text-5xl font-black text-school-navy dark:text-white tracking-tight">Program Sekolah</h3>
               </div>
               <Link to="/program" className="bg-school-navy dark:bg-school-yellow dark:text-school-navy text-white px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-school-navy/20">
                 Lihat Semua Program
@@ -444,7 +459,7 @@ export default function LandingPage() {
       )}
 
       {/* SECTION BERITA */}
-      <section id="berita" className="py-32 px-6 bg-slate-50 dark:bg-slate-900 border-y border-slate-300 dark:border-slate-800 transition-colors duration-300">
+      <section id="berita" className="py-32 px-6 bg-school-navy dark:bg-slate-950 border-y border-white/5 transition-colors duration-300">
         <div className="mx-auto max-w-7xl">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -453,13 +468,13 @@ export default function LandingPage() {
             className="flex flex-col sm:flex-row items-end justify-between mb-16 gap-6"
           >
             <div>
-               <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block flex items-center gap-2">
-                 <div className="h-1 w-8 bg-school-yellow rounded-full"></div>
+               <span className="text-school-yellow font-black uppercase tracking-[0.3em] text-[10px] mb-4 block flex items-center gap-2">
+                 <div className="h-1 w-8 bg-school-red rounded-full"></div>
                  Update Kegiatan
                </span>
-               <h3 className="text-4xl font-black text-school-navy dark:text-white">Warta & Pengumuman</h3>
+               <h3 className="text-4xl font-black text-white">Warta & Pengumuman</h3>
             </div>
-            <Link to="/berita" className="font-bold text-school-red flex items-center gap-2 group transition-all">
+            <Link to="/berita" className="bg-school-yellow text-school-navy px-8 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-xl shadow-school-yellow/10 flex items-center gap-2 group">
               Halaman Berita Selengkapnya 
               <ArrowRight className="h-4 w-4 group-hover:translate-x-2 transition-transform" />
             </Link>
@@ -487,25 +502,25 @@ export default function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-white dark:bg-slate-800 rounded-[2rem] overflow-hidden border border-slate-300 dark:border-slate-700 group hover:shadow-2xl transition-all h-full flex flex-col"
+                  className="bg-white/5 dark:bg-slate-900 border border-white/10 backdrop-blur-md rounded-[2rem] overflow-hidden group hover:shadow-2xl hover:bg-white/10 transition-all h-full flex flex-col"
                 >
                   <Link to={isLive ? `/berita/${newsItem?.id}` : '#'} className="block h-full flex flex-col">
-                    <div className="aspect-video bg-slate-200 dark:bg-slate-700 overflow-hidden relative">
+                    <div className="aspect-video bg-slate-800 overflow-hidden relative">
                       <img src={image} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
                       <div className="absolute top-4 left-4">
                         <span className="bg-school-navy text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-school-yellow">{category}</span>
                       </div>
                     </div>
                     <div className="p-8 flex-1 flex flex-col">
-                      <div className="flex items-center gap-2 text-[10px] font-bold text-school-slate dark:text-slate-400 uppercase tracking-widest mb-4">
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
                         <Calendar className="h-3 w-3" />
                         <span>{date}</span>
                       </div>
-                      <h4 className="text-xl font-bold text-school-navy dark:text-white my-4 line-clamp-2 leading-tight group-hover:text-school-red transition-colors">
+                      <h4 className="text-xl font-bold text-white my-4 line-clamp-2 leading-tight group-hover:text-school-yellow transition-colors">
                         {title}
                       </h4>
-                      <p className="text-sm text-school-slate dark:text-slate-400 line-clamp-2 mb-8 leading-relaxed flex-1">{excerpt}</p>
-                      <div className="text-school-red font-bold text-xs uppercase tracking-widest flex items-center gap-2 group/btn mt-auto">
+                      <p className="text-sm text-slate-400 line-clamp-2 mb-8 leading-relaxed flex-1">{excerpt}</p>
+                      <div className="text-school-yellow font-bold text-xs uppercase tracking-widest flex items-center gap-2 group/btn mt-auto">
                         Selengkapnya 
                         <ArrowRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform" />
                       </div>
@@ -535,7 +550,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION EKSTRAKURIKULER */}
-      <section id="ekstrakurikuler" className="py-32 px-6 bg-white dark:bg-slate-950 transition-colors duration-300">
+      <section id="ekstrakurikuler" className="py-32 px-6 bg-blue-50/50 dark:bg-slate-900 border-y border-blue-100 dark:border-slate-800 transition-colors duration-300">
         <div className="mx-auto max-w-7xl text-center">
           <motion.div
              initial={{ opacity: 0, y: 20 }}
@@ -543,7 +558,7 @@ export default function LandingPage() {
              viewport={{ once: true }}
           >
             <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-yellow underline-offset-8 decoration-4">Pengembangan Diri</span>
-            <h3 className="text-4xl font-black text-school-navy dark:text-white mb-16">Ekstrakurikuler Wajib & Pilihan</h3>
+            <h3 className="text-4xl font-black text-school-navy dark:text-white mb-16">Ekstrakurikuler Sekolah</h3>
           </motion.div>
           
           <motion.div 
@@ -559,9 +574,9 @@ export default function LandingPage() {
                 variants={itemVariants}
                 whileHover={{ y: -10, scale: 1.02 }}
                 onClick={() => setSelectedEkskul(ekskul)}
-                className="p-10 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col items-center group hover:bg-school-navy dark:hover:bg-school-yellow transition-all duration-500 cursor-pointer shadow-md hover:shadow-school-yellow/20"
+                className="p-10 rounded-[2.5rem] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-col items-center group hover:bg-school-navy dark:hover:bg-school-yellow transition-all duration-500 cursor-pointer shadow-md hover:shadow-school-yellow/20"
               >
-                <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-school-red mb-6 shadow-md shadow-black/5 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                <div className="h-16 w-16 bg-slate-50 dark:bg-slate-700/50 rounded-2xl flex items-center justify-center text-school-red group-hover:text-white dark:group-hover:text-school-navy mb-6 shadow-md shadow-black/5 group-hover:scale-110 group-hover:rotate-6 transition-transform">
                   <Star className="h-6 w-6" />
                 </div>
                 <span className="font-bold uppercase tracking-[0.2em] text-sm mb-2 group-hover:text-white dark:group-hover:text-school-navy text-center">{ekskul.name}</span>
@@ -585,20 +600,25 @@ export default function LandingPage() {
               />
             </motion.div>
           )}
-          <motion.button 
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            onClick={() => window.location.href='/ekstrakurikuler'} 
-            className="inline-block mt-20 text-sm font-bold text-school-red uppercase tracking-widest border-b-2 border-school-yellow pb-1 hover:border-school-red transition-all"
+            className="mt-20"
           >
-            Lihat Semua Kegiatan Siswa →
-          </motion.button>
+            <Link 
+              to="/ekstrakurikuler" 
+              className="inline-flex items-center gap-3 bg-school-navy dark:bg-school-yellow text-white dark:text-school-navy px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-800 dark:hover:bg-yellow-400 transition-all shadow-2xl shadow-school-navy/20 dark:shadow-school-yellow/10 group"
+            >
+              Lihat Semua Kegiatan Siswa
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-2 transition-transform" />
+            </Link>
+          </motion.div>
         </div>
       </section>
 
       {/* SECTION PRESTASI */}
-      <section id="prestasi" className="py-32 px-6 bg-slate-50 dark:bg-slate-900 border-y border-slate-300 dark:border-slate-800 transition-colors duration-300">
+      <section id="prestasi" className="py-32 px-6 bg-school-navy dark:bg-slate-950 border-y border-white/5 transition-colors duration-300">
         <div className="mx-auto max-w-7xl">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -607,16 +627,16 @@ export default function LandingPage() {
             className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8"
           >
             <div className="max-w-xl text-left">
-              <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-yellow underline-offset-8 decoration-4 inline-block">Kebanggaan Sekolah</span>
-              <h3 className="text-4xl md:text-5xl font-black text-school-navy dark:text-white leading-tight tracking-tight">
+              <span className="text-school-yellow font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-red underline-offset-8 decoration-4 inline-block">Kebanggaan Sekolah</span>
+              <h3 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">
                 Apresiasi Prestasi <br/> Generasi ALAMANDA
               </h3>
             </div>
-            <Link to="/prestasi" className="bg-school-navy dark:bg-school-yellow dark:text-school-navy text-white px-10 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-school-navy/20 dark:shadow-school-yellow/10">
+            <Link to="/prestasi" className="bg-school-yellow text-school-navy px-10 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-xl shadow-school-yellow/20">
               Kumpulan Informasi Prestasi
             </Link>
           </motion.div>
-
+ 
           <motion.div 
             variants={staggerContainer}
             initial="hidden"
@@ -633,23 +653,23 @@ export default function LandingPage() {
                 }}
                 whileHover={{ scale: 1.02, rotate: i % 2 === 0 ? -0.5 : 0.5 }}
                 onClick={() => setSelectedAchievement(pres)}
-                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 p-12 rounded-[3rem] flex flex-col sm:flex-row gap-8 items-center group hover:shadow-2xl transition-all cursor-pointer shadow-md"
+                className="bg-white/5 backdrop-blur-md border border-white/10 p-12 rounded-[3rem] flex flex-col sm:flex-row gap-8 items-center group hover:shadow-2xl transition-all cursor-pointer shadow-md"
               >
-                <div className="h-24 w-24 flex-shrink-0 bg-blue-50 dark:bg-blue-500/10 rounded-[2rem] flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-700 shadow-md">
+                <div className="h-24 w-24 flex-shrink-0 bg-white/10 rounded-[2rem] flex items-center justify-center text-school-yellow group-hover:bg-school-yellow group-hover:text-school-navy transition-all duration-700 shadow-md">
                   <Trophy className="h-10 w-10" />
                 </div>
                 <div className="text-left flex-1">
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-[10px] font-black text-school-red uppercase tracking-widest">{pres.year}</span>
-                    <div className="h-px w-8 bg-slate-200 dark:bg-slate-600"></div>
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-school-yellow uppercase tracking-widest">{pres.year}</span>
+                    <div className="h-px w-8 bg-white/20"></div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                       {(pres as any).loc || 'Umum'}
                     </span>
                   </div>
-                  <h4 className="text-2xl font-bold text-school-navy dark:text-white leading-tight group-hover:text-school-red transition-colors">
+                  <h4 className="text-2xl font-bold text-white leading-tight group-hover:text-school-yellow transition-colors">
                     {pres.title}
                   </h4>
-                  {pres.winner && <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-bold uppercase tracking-widest">{pres.winner}</p>}
+                  {pres.winner && <p className="text-sm text-slate-400 mt-2 font-bold uppercase tracking-widest">{pres.winner}</p>}
                 </div>
               </motion.div>
             ))}
@@ -666,63 +686,6 @@ export default function LandingPage() {
               />
             </div>
           )}
-        </div>
-      </section>
-
-      {/* SECTION KONTAK */}
-      <section id="kontak" className="py-32 px-6 bg-white dark:bg-slate-950 transition-colors duration-300">
-        <div className="mx-auto max-w-7xl">
-           <div className="grid lg:grid-cols-2 gap-24 items-center">
-              <motion.div 
-                initial={{ opacity: 0, x: -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="text-left"
-              >
-                 <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-yellow underline-offset-8 decoration-4">Hubungi Kami</span>
-                 <h3 className="text-4xl md:text-5xl font-black text-school-navy dark:text-white mb-8 tracking-tight">Informasi Layanan <br/> & Korespondensi</h3>
-                 <p className="text-school-slate dark:text-slate-400 mb-12 text-lg leading-relaxed max-w-lg">
-                   Punya pertanyaan? Tim kami siap melayani kebutuhan informasi wali murid, siswa, maupun masyarakat umum.
-                 </p>
-                 
-                 <div className="space-y-10">
-                    <div className="flex gap-6 items-start">
-                       <div className="h-14 w-14 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-school-red flex-shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
-                          <MapPin className="h-6 w-6" />
-                       </div>
-                       <div>
-                          <p className="font-bold uppercase text-[10px] tracking-[0.3em] text-school-slate dark:text-slate-500 mb-2">Lokasi Fisik</p>
-                          <p className="font-bold text-school-navy dark:text-white text-lg leading-relaxed">Jl. Kelayan Besar 1 RT.3 Kel.Tanjung Pagar</p>
-                       </div>
-                    </div>
-                    <div className="flex gap-6 items-start">
-                       <div className="h-14 w-14 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-school-red flex-shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
-                          <Phone className="h-6 w-6" />
-                       </div>
-                       <div>
-                          <p className="font-bold uppercase text-[10px] tracking-[0.3em] text-school-slate dark:text-slate-500 mb-2">Saluran Digital</p>
-                          <p className="font-bold text-school-navy dark:text-white text-lg leading-relaxed">{school.email || 'info@smpn18bjm.sch.id'} <br/> {school.phone || '(0511) 3254397'}</p>
-                       </div>
-                    </div>
-                 </div>
-              </motion.div>
-              <motion.div 
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="h-[500px] bg-slate-100 dark:bg-slate-800 rounded-[4rem] overflow-hidden relative shadow-2xl shadow-black/5 group border-8 border-slate-200 dark:border-slate-800"
-              >
-                 <iframe 
-                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.082729904265!2d114.59560411082531!3d-3.32997239663473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2de4214534a78945%3A0xc4a6829705a69176!2sSMP%20Negeri%2018%20Banjarmasin!5e0!3m2!1sid!2sid!4v1714328324324!5m2!1sid!2sid" 
-                   className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
-                   allowFullScreen={true} 
-                   loading="lazy" 
-                   referrerPolicy="no-referrer-when-downgrade"
-                 ></iframe>
-              </motion.div>
-           </div>
         </div>
       </section>
 
@@ -870,6 +833,66 @@ export default function LandingPage() {
           </div>
         </section>
       )}
+
+      {/* SECTION KONTAK */}
+      <section id="kontak" className="py-32 px-6 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 transition-colors duration-300">
+        <div className="mx-auto max-w-7xl">
+           <div className="grid lg:grid-cols-2 gap-24 items-center">
+              <motion.div 
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="text-left"
+              >
+                 <span className="text-school-red font-black uppercase tracking-[0.3em] text-[10px] mb-4 block underline decoration-school-yellow underline-offset-8 decoration-4">Hubungi Kami</span>
+                 <h3 className="text-4xl md:text-5xl font-black text-school-navy dark:text-white mb-8 tracking-tight">Informasi Layanan <br/> & Korespondensi</h3>
+                 <p className="text-school-slate dark:text-slate-400 mb-12 text-lg leading-relaxed max-w-lg">
+                   Hubungi kami melalui saluran berikut.
+                 </p>
+                 
+                 <div className="space-y-10">
+                    <div className="flex gap-6 items-start">
+                       <div className="h-14 w-14 rounded-3xl bg-white dark:bg-slate-800 flex items-center justify-center text-school-red flex-shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
+                          <MapPin className="h-6 w-6" />
+                       </div>
+                        <div>
+                          <p className="font-bold uppercase text-[10px] tracking-[0.3em] text-school-slate dark:text-slate-500 mb-2">Lokasi</p>
+                          <p className="font-bold text-school-navy dark:text-white text-lg leading-relaxed">{school.address}</p>
+                       </div>
+                    </div>
+                    <div className="flex gap-6 items-start">
+                       <div className="h-14 w-14 rounded-3xl bg-white dark:bg-slate-800 flex items-center justify-center text-school-red flex-shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
+                          <Phone className="h-6 w-6" />
+                       </div>
+                       <div>
+                          <p className="font-bold uppercase text-[10px] tracking-[0.3em] text-school-slate dark:text-slate-500 mb-2">Nomor Telepon</p>
+                          <p className="font-bold text-school-navy dark:text-white text-lg leading-relaxed">
+                            {school.email} <br/> 
+                            {school.phone}
+                          </p>
+                       </div>
+                    </div>
+                 </div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="h-[500px] bg-slate-100 dark:bg-slate-800 rounded-[4rem] overflow-hidden relative shadow-2xl shadow-black/5 group border-8 border-slate-200 dark:border-slate-800"
+              >
+                 <iframe 
+                   src={getMapsUrl(school.mapsUrl)} 
+                   className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
+                   allowFullScreen={true} 
+                   loading="lazy" 
+                   referrerPolicy="no-referrer-when-downgrade"
+                 ></iframe>
+              </motion.div>
+           </div>
+        </div>
+      </section>
 
       {/* FLOAT WA BUTTON */}
       <a 

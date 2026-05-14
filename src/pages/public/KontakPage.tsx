@@ -25,11 +25,20 @@ export default function KontakPage() {
     );
   }
 
+  const getMapsUrl = (input: string) => {
+    if (!input) return "";
+    if (input.includes("<iframe")) {
+      const match = input.match(/src="([^"]+)"/);
+      return match ? match[1] : input;
+    }
+    return input;
+  };
+
   const contactItems = [
-    { label: 'Telepon Kantor', value: settings?.phone || '(0511) 123456', icon: <Phone />, color: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' },
+    { label: 'Telepon Kantor', value: settings?.phone || '(0511) 3254397', icon: <Phone />, color: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' },
     { label: 'E-mail Resmi', value: settings?.email || 'info@smpn18bjm.sch.id', icon: <Mail />, color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
-    { label: 'Instagram', value: '@smpn18bjm', icon: <Instagram />, color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' },
-    { label: 'WhatsApp Bisnis', value: settings?.phone || '+62 811 555 123', icon: <MessageCircle />, color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' },
+    { label: 'Instagram', value: settings?.instagram || '@smpn18bjm', icon: <Instagram />, color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' },
+    { label: 'WhatsApp Bisnis', value: settings?.phone || '(0511) 3254397', icon: <MessageCircle />, color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' },
   ];
 
   return (
@@ -41,7 +50,7 @@ export default function KontakPage() {
                 <span className="text-school-red dark:text-school-yellow font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Kontak Resmi</span>
                 <h1 className="text-4xl md:text-7xl font-black mb-8 leading-tight text-school-navy dark:text-white">Mari Terhubung <br /> Dengan Kami</h1>
                 <p className="text-school-slate dark:text-slate-400 text-lg leading-relaxed">
-                  Punya pertanyaan tentang pendaftaran, administrasi, atau sekadar ingin bertegur sapa? Tim layanan kami siap membantu Anda.
+                  Punya pertanyaan tentang pendaftaran, administrasi, atau hal lainnya? Silahkan hubungi kami melalui saluran berikut.
                 </p>
               </header>
 
@@ -71,18 +80,23 @@ export default function KontakPage() {
                        <MapPin className="h-6 w-6 text-school-red flex-shrink-0" />
                        <div>
                           <p className="font-black uppercase text-[10px] tracking-widest text-school-slate dark:text-slate-500 mb-2">Alamat Fisik</p>
-                          <p className="font-bold text-lg leading-relaxed text-school-navy dark:text-slate-300">{settings?.address || "Jl. Pemuda No. 18, Banjarmasin"}</p>
+                          <p className="font-bold text-lg leading-relaxed text-school-navy dark:text-slate-300">{settings?.address || "Jl. Kelayan Besar 1 RT.3 Kel.Tanjung Pagar"}</p>
                        </div>
                     </div>
-                    <div className="aspect-square bg-slate-200 dark:bg-slate-700 rounded-[3rem] overflow-hidden border border-slate-200 dark:border-slate-600 shadow-inner group relative cursor-pointer">
-                        <div className="absolute inset-0 bg-school-navy/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                           <span className="bg-white text-school-navy px-8 py-3 rounded-full font-bold text-xs uppercase tracking-widest">Buka di Google Maps</span>
-                        </div>
-                        <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1200&auto=format&fit=crop" alt="Map" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" referrerPolicy="no-referrer" />
+                    <div className="aspect-square bg-slate-200 dark:bg-slate-700 rounded-[3rem] overflow-hidden border border-slate-200 dark:border-slate-600 shadow-inner group relative">
+                        <iframe 
+                          src={getMapsUrl(settings?.mapsUrl || "")} 
+                          className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
+                          allowFullScreen={true} 
+                          loading="lazy" 
+                          referrerPolicy="no-referrer-when-downgrade"
+                          title="School Location"
+                        ></iframe>
                     </div>
                  </div>
               </div>
            </div>
+
         </div>
       </main>
     </div>

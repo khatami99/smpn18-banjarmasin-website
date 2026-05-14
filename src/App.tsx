@@ -151,13 +151,13 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-school-navy dark:bg-slate-900 text-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex h-20 items-center gap-3 px-6 border-b border-white/10">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 shrink-0 transform bg-school-navy dark:bg-slate-900 text-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
+        <div className="flex h-20 items-center shrink-0 gap-3 px-6 border-b border-white/10">
           <SchoolLogo size="h-8" variant="white" />
           <span className="text-lg font-bold">Admin Portal</span>
         </div>
         
-        <nav className="mt-8 px-4 space-y-2">
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
           {menuItems.map((item) => (
             <Link 
               key={item.path}
@@ -170,14 +170,14 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        <div className="absolute bottom-8 left-0 w-full px-4 text-sm">
+        <div className="shrink-0 p-4 border-t border-white/5 space-y-1 mb-4 text-sm">
           <Link to="/" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
             <Home className="h-5 w-5" />
             <span className="font-medium">Lihat Website</span>
           </Link>
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 mt-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-xl transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-xl transition-colors"
           >
             <LogOut className="h-5 w-5" />
             <span className="font-medium">Logout</span>
